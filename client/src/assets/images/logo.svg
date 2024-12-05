@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200px" height="200px" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <g id="logo" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <circle id="background" fill="#E53935" cx="100" cy="100" r="100"/>
+        <path d="M100,140 C60,140 40,100 40,80 C40,60 60,40 100,40 C140,40 160,60 160,80 C160,100 140,140 100,140 Z" 
+              id="drop" fill="#FFFFFF"/>
+        <path d="M100,120 C80,120 70,100 70,90 C70,80 80,70 100,70 C120,70 130,80 130,90 C130,100 120,120 100,120 Z" 
+              id="highlight" fill="#FF6F60"/>
+    </g>
+</svg>
