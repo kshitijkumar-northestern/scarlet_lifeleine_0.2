@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -13,6 +13,7 @@ import {
   ListItemIcon,
   ListItemText,
   Container,
+  alpha,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -27,7 +28,6 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTheme as useMuiTheme } from "@mui/material/styles";
 import { useTheme } from "../../contexts/ThemeContext";
-import { useState } from "react";
 
 const Navbar = () => {
   const { user, role, logout } = useAuth();
@@ -37,9 +37,7 @@ const Navbar = () => {
   const isMobile = useMediaQuery(muiTheme.breakpoints.down("sm"));
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
+  const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
 
   const handleLogout = () => {
     logout();
@@ -79,33 +77,76 @@ const Navbar = () => {
       ];
 
   const drawer = (
-    <List>
-      {menuItems.map((item) => (
-        <ListItem
-          button
-          key={item.text}
-          component={item.path ? RouterLink : "button"}
-          to={item.path}
-          onClick={item.onClick || handleDrawerToggle}
-        >
-          <ListItemIcon>{item.icon}</ListItemIcon>
-          <ListItemText primary={item.text} />
-        </ListItem>
-      ))}
-    </List>
+    <Box
+      sx={{
+        height: "100%",
+        backgroundColor: mode === "dark" ? "#000000" : "#F2F2F7",
+      }}
+    >
+      <List>
+        {menuItems.map((item) => (
+          <ListItem
+            key={item.text}
+            component={item.path ? RouterLink : "button"}
+            to={item.path}
+            onClick={item.onClick || handleDrawerToggle}
+            sx={{
+              my: 0.5,
+              mx: 1,
+              borderRadius: 2,
+              transition: "all 0.2s",
+              "&:hover": {
+                backgroundColor: alpha(muiTheme.palette.primary.main, 0.08),
+              },
+            }}
+          >
+            <ListItemIcon
+              sx={{
+                color: muiTheme.palette.text.primary,
+                minWidth: 40,
+              }}
+            >
+              {item.icon}
+            </ListItemIcon>
+            <ListItemText
+              primary={item.text}
+              sx={{
+                "& .MuiListItemText-primary": {
+                  fontSize: "17px",
+                  fontWeight: 500,
+                },
+              }}
+            />
+          </ListItem>
+        ))}
+      </List>
+    </Box>
   );
 
   return (
     <>
-      <AppBar position="sticky">
+      <AppBar
+        position="sticky"
+        elevation={0}
+        sx={{
+          backgroundColor:
+            mode === "dark" ? alpha("#1C1C1E", 0.8) : alpha("#FFFFFF", 0.8),
+          backdropFilter: "blur(20px)",
+          borderBottom: `0.5px solid ${
+            mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
+          }`,
+        }}
+      >
         <Container maxWidth="lg">
-          <Toolbar>
+          <Toolbar sx={{ py: 1 }}>
             {isMobile && (
               <IconButton
-                color="inherit"
                 edge="start"
                 onClick={handleDrawerToggle}
-                sx={{ mr: 2 }}
+                sx={{
+                  mr: 2,
+                  color: muiTheme.palette.text.primary,
+                }}
               >
                 <MenuIcon />
               </IconButton>
@@ -118,36 +159,70 @@ const Navbar = () => {
               sx={{
                 flexGrow: 1,
                 textDecoration: "none",
-                color: "inherit",
+                color: muiTheme.palette.text.primary,
                 fontWeight: 600,
+                fontSize: "20px",
+                letterSpacing: "-0.017em",
               }}
             >
               Scarlet Lifeline
             </Typography>
 
-            <IconButton onClick={toggleTheme} color="inherit">
+            <IconButton
+              onClick={toggleTheme}
+              sx={{
+                color: muiTheme.palette.text.primary,
+                mr: !isMobile ? 2 : 0,
+              }}
+            >
               {mode === "dark" ? <Brightness7 /> : <Brightness4 />}
             </IconButton>
 
             {!isMobile && (
-              <Box sx={{ display: "flex", gap: 2 }}>
+              <Box sx={{ display: "flex", gap: 1 }}>
                 {menuItems.map((item) =>
                   item.path ? (
                     <Button
                       key={item.text}
-                      color="inherit"
                       component={RouterLink}
                       to={item.path}
                       startIcon={item.icon}
+                      sx={{
+                        color: muiTheme.palette.text.primary,
+                        fontSize: "17px",
+                        px: 2,
+                        py: 1,
+                        borderRadius: 2,
+                        transition: "all 0.2s",
+                        "&:hover": {
+                          backgroundColor: alpha(
+                            muiTheme.palette.primary.main,
+                            0.08
+                          ),
+                        },
+                      }}
                     >
                       {item.text}
                     </Button>
                   ) : (
                     <Button
                       key={item.text}
-                      color="inherit"
                       onClick={item.onClick}
                       startIcon={item.icon}
+                      sx={{
+                        color: muiTheme.palette.text.primary,
+                        fontSize: "17px",
+                        px: 2,
+                        py: 1,
+                        borderRadius: 2,
+                        transition: "all 0.2s",
+                        "&:hover": {
+                          backgroundColor: alpha(
+                            muiTheme.palette.primary.main,
+                            0.08
+                          ),
+                        },
+                      }}
                     >
                       {item.text}
                     </Button>
@@ -164,12 +239,18 @@ const Navbar = () => {
         anchor="left"
         open={mobileOpen}
         onClose={handleDrawerToggle}
-        ModalProps={{
-          keepMounted: true,
+        ModalProps={{ keepMounted: true }}
+        PaperProps={{
+          sx: {
+            width: 280,
+            backgroundColor: mode === "dark" ? "#000000" : "#F2F2F7",
+            borderRight: `0.5px solid ${
+              mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
+            }`,
+          },
         }}
         sx={{
           display: { xs: "block", sm: "none" },
-          "& .MuiDrawer-paper": { width: 240 },
         }}
       >
         {drawer}

@@ -95,12 +95,20 @@ const DonorDashboard = () => {
   const { handleRequest, loading } = useApi();
 
   const fetchAppointments = async () => {
-    const data = await handleRequest(
-      () => donorService.getAppointments(user.id),
-      "",
-      "Failed to fetch appointments"
-    );
-    setAppointments(data);
+    try {
+      const donorId = user?.id || localStorage.getItem("donorId");
+      if (!donorId) {
+        throw new Error("No donor ID found");
+      }
+      const data = await handleRequest(
+        () => donorService.getAppointments(donorId),
+        "",
+        "Failed to fetch appointments"
+      );
+      setAppointments(data);
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+    }
   };
 
   const fetchBloodBanks = async () => {
