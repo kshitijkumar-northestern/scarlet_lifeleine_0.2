@@ -6,6 +6,8 @@ const adminService = {
     const response = await api.post(API_ENDPOINTS.ADMIN_LOGIN, credentials);
     if (response.data.token) {
       localStorage.setItem("token", response.data.token);
+      // Add this line to store admin ID
+      localStorage.setItem("adminId", response.data.id);
     }
     return response.data;
   },

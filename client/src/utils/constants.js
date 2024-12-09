@@ -18,16 +18,26 @@ export const APPOINTMENT_STATUS = {
 
 export const API_ENDPOINTS = {
   // Admin endpoints
-  ADMIN_LOGIN: "api/admins/login",
-  ADMIN_BLOODBANKS: "api/admins/bloodbanks",
-  ADMIN_APPOINTMENTS: "api/admins/appointments",
+  ADMIN_LOGIN: "/admins/login",
+  ADMIN_REGISTER: "/admins/register",
+  ADMIN_BLOODBANKS: "/admins/bloodbanks",
+  ADMIN_APPOINTMENTS: "/admins/appointments",
 
   // Donor endpoints
-  DONOR_LOGIN: "api/donors/login",
-  DONOR_REGISTER: "api/donors/register",
-  DONOR_APPOINTMENTS: "api/donors/appointments",
+  DONOR_LOGIN: "/donors/login",
+  DONOR_REGISTER: "/donors/register",
+  DONOR_APPOINTMENTS: "/appointments",
 
   // Blood bank endpoints
-  BLOODBANKS: "api/bloodbanks",
-  BLOODBANK_INVENTORY: "api/bloodbanks/inventory",
+  BLOODBANKS: "/bloodbanks",
+
+  // Appointment endpoints
+  APPOINTMENTS: "/appointments",
+
+  // Dynamic endpoints (for reference)
+  // GET /bloodbanks/{id}
+  // GET /bloodbanks/{id}/appointments
+  // PUT /admins/bloodbanks/{id}/inventory
+  // GET /donors/{id}/appointments
+  // GET /appointments/{id}
 };

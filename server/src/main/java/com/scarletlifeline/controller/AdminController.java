@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/admins")
+@RequestMapping("/admins")
 @RequiredArgsConstructor
 @Tag(name = "Admin", description = "Admin management APIs")
 public class AdminController {

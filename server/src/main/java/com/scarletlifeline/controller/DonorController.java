@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/donors")
+@RequestMapping("/donors")
 @RequiredArgsConstructor
 @Tag(name = "Donor", description = "Donor management APIs")
 public class DonorController {

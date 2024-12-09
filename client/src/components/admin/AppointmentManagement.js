@@ -29,7 +29,7 @@ const AppointmentDetails = ({ appointment, open, onClose, onStatusChange }) => {
   const handleChange = async (newStatus) => {
     try {
       await handleRequest(
-        () => adminService.updateAppointmentStatus(appointment.id, newStatus),
+        () => adminService.updateAppointmentStatus(appointment._id, newStatus),
         "Appointment status updated successfully"
       );
       onStatusChange();

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/bloodbanks")
+@RequestMapping("/bloodbanks")
 @RequiredArgsConstructor
 @Tag(name = "BloodBank", description = "Blood bank management APIs")
 public class BloodBankController {
