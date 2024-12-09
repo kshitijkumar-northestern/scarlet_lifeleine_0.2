@@ -21,27 +21,27 @@ const adminService = {
     }
   },
 
-  getAllAppointments: async (id) => {
-    try {
-      const response = await api.get(`/appointments/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching appointments:", error);
-      throw error;
-    }
-  },
+  // getAllAppointments: async (id) => {
+  //   try {
+  //     const response = await api.get(`/appointments/${id}`);
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error("Error fetching appointments:", error);
+  //     throw error;
+  //   }
+  // },
 
-  updateAppointmentStatus: async (id, status) => {
-    try {
-      const response = await api.put(
-        `/admins/appointments/${id}/status?status=${status}`
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error updating appointment status:", error);
-      throw error;
-    }
-  },
+  // updateAppointmentStatus: async (id, status) => {
+  //   try {
+  //     const response = await api.put(
+  //       `/admins/appointments/${id}/status?status=${status}`
+  //     );
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error("Error updating appointment status:", error);
+  //     throw error;
+  //   }
+  // },
 
   addBloodBank: async (data) => {
     try {

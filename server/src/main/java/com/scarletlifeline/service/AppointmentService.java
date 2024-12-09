@@ -4,6 +4,7 @@ import com.scarletlifeline.dto.AppointmentDTO;
 import com.scarletlifeline.enums.AppointmentStatus;
 import com.scarletlifeline.exception.CustomException;
 import com.scarletlifeline.model.Appointment;
+import com.scarletlifeline.model.BloodBank;
 import com.scarletlifeline.repository.AppointmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,10 @@ public class AppointmentService {
     public List<Appointment> getBloodBankAppointments(String bloodBankId) {
         return appointmentRepository.findByBloodBankId(bloodBankId);
     }
+    public List<Appointment> getAllAppointments() {
+        return appointmentRepository.findAll();
+    }
+
 
     public Appointment getAppointment(String id) {
         return appointmentRepository.findById(id)
