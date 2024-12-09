@@ -1,30 +1,31 @@
+// src/App.js
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { ThemeProvider } from "./contexts/ThemeContext"; // Import our custom ThemeProvider
-import { AuthProvider } from "./contexts/AuthContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import { AlertProvider } from "./contexts/AlertContext";
+import { AuthProvider } from "./contexts/AuthContext";
 import AppRoutes from "./routes";
 import Navbar from "./components/common/Navbar";
 import ErrorBoundary from "./components/common/ErrorBoundary";
 
 const App = () => {
   return (
-    <ThemeProvider>
-      <ErrorBoundary>
-        <AlertProvider>
-          <AuthProvider>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <BrowserRouter>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <BrowserRouter>
+          <AlertProvider>
+            <AuthProvider>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <Navbar />
                 <AppRoutes />
-              </BrowserRouter>
-            </LocalizationProvider>
-          </AuthProvider>
-        </AlertProvider>
-      </ErrorBoundary>
-    </ThemeProvider>
+              </LocalizationProvider>
+            </AuthProvider>
+          </AlertProvider>
+        </BrowserRouter>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 };
 

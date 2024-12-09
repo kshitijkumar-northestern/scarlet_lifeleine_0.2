@@ -1,131 +1,95 @@
+// src/styles/theme.js
 import { createTheme } from "@mui/material/styles";
 
 export const createAppTheme = (mode) => {
-  // Uber's exact color palette
-  const uber = {
-    black: "#000000",
-    white: "#FFFFFF",
-    primary: {
-      main: "#000000", // Uber uses black as primary
-      light: "#333333",
-      dark: "#000000",
-      contrastText: "#FFFFFF",
+  const themeColors = {
+    dark: {
+      primary: {
+        main: "#FF4B2B",
+        light: "#FF6B3D",
+        dark: "#E43D1A",
+      },
+      background: {
+        default: "#121212",
+        paper: "#1E1E1E",
+      },
+      text: {
+        primary: "#FFFFFF",
+        secondary: "#B0B0B0",
+      },
     },
-    secondary: {
-      main: "#EEEEEE", // Light gray for secondary elements
-      light: "#F6F6F6",
-      dark: "#DDDDDD",
-      contrastText: "#000000",
-    },
-    gray: {
-      50: "#F7F7F7",
-      100: "#EEEEEE",
-      200: "#E0E0E0",
-      300: "#CFCFCF",
-      400: "#B8B8B8",
-      500: "#999999",
-      600: "#666666",
-      700: "#444444",
-      800: "#2D2D2D",
-      900: "#1A1A1A",
+    light: {
+      primary: {
+        main: "#FF4B2B",
+        light: "#FF6B3D",
+        dark: "#E43D1A",
+      },
+      background: {
+        default: "#FFFFFF",
+        paper: "#F5F5F5",
+      },
+      text: {
+        primary: "#2D3748",
+        secondary: "#718096",
+      },
     },
   };
 
   return createTheme({
     palette: {
       mode,
-      primary: uber.primary,
-      secondary: uber.secondary,
-      background: {
-        default: mode === "dark" ? uber.black : uber.white,
-        paper: mode === "dark" ? uber.gray[800] : uber.white,
-      },
-      text: {
-        primary: mode === "dark" ? uber.white : uber.black,
-        secondary: mode === "dark" ? uber.gray[400] : uber.gray[600],
-      },
+      ...(mode === "dark" ? themeColors.dark : themeColors.light),
     },
     typography: {
       fontFamily:
-        '"UberMove", "Uber Move", -apple-system, BlinkMacSystemFont, Helvetica, sans-serif',
+        '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       h1: {
-        fontSize: "44px",
+        fontSize: "2.5rem",
         fontWeight: 700,
-        letterSpacing: "-0.5px",
+        letterSpacing: "-0.01562em",
       },
       h2: {
-        fontSize: "36px",
+        fontSize: "2rem",
         fontWeight: 700,
-        letterSpacing: "-0.5px",
+        letterSpacing: "-0.00833em",
       },
       h3: {
-        fontSize: "28px",
-        fontWeight: 700,
-        letterSpacing: "-0.3px",
+        fontSize: "1.75rem",
+        fontWeight: 600,
+        letterSpacing: "0em",
       },
       h4: {
-        fontSize: "24px",
-        fontWeight: 500,
-        letterSpacing: "-0.2px",
+        fontSize: "1.5rem",
+        fontWeight: 600,
+        letterSpacing: "0.00735em",
       },
       h5: {
-        fontSize: "20px",
-        fontWeight: 500,
-        letterSpacing: "-0.2px",
+        fontSize: "1.25rem",
+        fontWeight: 600,
+        letterSpacing: "0em",
       },
       h6: {
-        fontSize: "16px",
-        fontWeight: 500,
-        letterSpacing: "-0.2px",
-      },
-      body1: {
-        fontSize: "16px",
-        lineHeight: 1.5,
-        letterSpacing: "-0.1px",
-      },
-      body2: {
-        fontSize: "14px",
-        lineHeight: 1.5,
-        letterSpacing: "-0.1px",
+        fontSize: "1rem",
+        fontWeight: 600,
+        letterSpacing: "0.0075em",
       },
       button: {
         textTransform: "none",
-        fontWeight: 500,
-        fontSize: "16px",
+        fontWeight: 600,
       },
     },
     components: {
       MuiButton: {
         styleOverrides: {
           root: {
-            borderRadius: 4,
-            padding: "12px 24px",
-            textTransform: "none",
-            fontSize: "16px",
-            fontWeight: 500,
-            letterSpacing: "-0.1px",
+            borderRadius: 8,
+            padding: "10px 24px",
+            fontSize: "1rem",
           },
           contained: {
             boxShadow: "none",
             "&:hover": {
               boxShadow: "none",
-              backgroundColor:
-                mode === "dark" ? uber.gray[800] : uber.gray[100],
-            },
-          },
-          containedPrimary: {
-            backgroundColor: uber.black,
-            color: uber.white,
-            "&:hover": {
-              backgroundColor: uber.gray[800],
-            },
-          },
-          outlined: {
-            borderWidth: 1,
-            padding: "11px 23px",
-            "&:hover": {
-              borderWidth: 1,
-              backgroundColor: "transparent",
             },
           },
         },
@@ -134,58 +98,36 @@ export const createAppTheme = (mode) => {
         styleOverrides: {
           root: {
             "& .MuiOutlinedInput-root": {
-              borderRadius: 4,
-              "& fieldset": {
-                borderColor: mode === "dark" ? uber.gray[600] : uber.gray[300],
-                borderWidth: 1,
-              },
-              "&:hover fieldset": {
-                borderColor: mode === "dark" ? uber.gray[500] : uber.gray[400],
-              },
-              "&.Mui-focused fieldset": {
-                borderColor: uber.black,
-                borderWidth: 1,
-              },
+              borderRadius: 8,
             },
+          },
+        },
+      },
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            backgroundImage: "none",
           },
         },
       },
       MuiCard: {
         styleOverrides: {
           root: {
-            borderRadius: 4,
-            boxShadow: "none",
-            border: `1px solid ${
-              mode === "dark" ? uber.gray[700] : uber.gray[200]
-            }`,
+            borderRadius: 12,
+            boxShadow:
+              mode === "dark"
+                ? "0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+                : "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
           },
         },
       },
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: mode === "dark" ? uber.black : uber.white,
-            boxShadow: "none",
-            borderBottom: `1px solid ${
-              mode === "dark" ? uber.gray[800] : uber.gray[200]
-            }`,
-          },
-        },
-      },
-      MuiDrawer: {
-        styleOverrides: {
-          paper: {
-            backgroundColor: mode === "dark" ? uber.black : uber.white,
-            borderRight: `1px solid ${
-              mode === "dark" ? uber.gray[800] : uber.gray[200]
-            }`,
-          },
-        },
-      },
-      MuiDivider: {
-        styleOverrides: {
-          root: {
-            borderColor: mode === "dark" ? uber.gray[800] : uber.gray[200],
+            boxShadow:
+              mode === "dark"
+                ? "0 1px 3px 0 rgba(0, 0, 0, 0.4)"
+                : "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
           },
         },
       },

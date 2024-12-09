@@ -1,3 +1,4 @@
+// src/services/api.js
 import axios from "axios";
 
 const api = axios.create({
@@ -5,6 +6,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
 // Request interceptor
@@ -19,13 +21,19 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor
+// Add token if it exists
+const token = localStorage.getItem("token");
+if (token) {
+  api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+}
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
       localStorage.clear();
-      window.location.href = "/login";
+      delete api.defaults.headers.common["Authorization"];
+      window.location.href = "/";
     }
     return Promise.reject(error);
   }

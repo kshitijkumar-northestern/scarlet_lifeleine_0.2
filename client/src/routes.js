@@ -1,3 +1,4 @@
+// src/routes.js
 import React, { Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import LoadingSpinner from "./components/common/LoadingSpinner";
@@ -21,36 +22,33 @@ const AppRoutes = () => {
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <Routes>
+        {/* Public routes */}
         <Route path="/" element={<Navigate to="/donor/login" />} />
 
-        {/* Admin Routes */}
-        <Route path="/admin">
-          <Route path="login" element={<AdminLogin />} />
-          <Route
-            path="dashboard/*"
-            element={
-              <PrivateRoute roles={["admin"]}>
-                <AdminDashboard />
-              </PrivateRoute>
-            }
-          />
-        </Route>
+        {/* Admin routes */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route
+          path="/admin/dashboard/*"
+          element={
+            <PrivateRoute userType="admin">
+              <AdminDashboard />
+            </PrivateRoute>
+          }
+        />
 
-        {/* Donor Routes */}
-        <Route path="/donor">
-          <Route path="login" element={<DonorLogin />} />
-          <Route path="register" element={<DonorRegistration />} />
-          <Route
-            path="dashboard"
-            element={
-              <PrivateRoute roles={["donor"]}>
-                <DonorDashboard />
-              </PrivateRoute>
-            }
-          />
-        </Route>
+        {/* Donor routes */}
+        <Route path="/donor/login" element={<DonorLogin />} />
+        <Route path="/donor/register" element={<DonorRegistration />} />
+        <Route
+          path="/donor/dashboard/*"
+          element={
+            <PrivateRoute userType="donor">
+              <DonorDashboard />
+            </PrivateRoute>
+          }
+        />
 
-        {/* 404 Route */}
+        {/* Catch all route */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>

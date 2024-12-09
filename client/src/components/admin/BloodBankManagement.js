@@ -1,15 +1,16 @@
+// src/components/admin/BloodBankManagement.js (continued)
 import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
+  IconButton,
+  Typography,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   TextField,
   Grid,
-  IconButton,
-  Typography,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -20,9 +21,7 @@ import DataTable from "../common/DataTable";
 import LoadingSpinner from "../common/LoadingSpinner";
 import ConfirmDialog from "../common/ConfirmDialog";
 import { useApi } from "../../hooks/useApi";
-import { useAlert } from "../../contexts/AlertContext";
-import bloodBankService from "../../services/bloodBankService";
-import adminService from "../../services/adminService";
+import api from "../../services/api";
 
 const BloodBankForm = ({ open, onClose, bloodBank, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -104,17 +103,15 @@ const BloodBankManagement = () => {
   const [openConfirm, setOpenConfirm] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-
-  const { handleRequest, loading } = useApi();
-  const { showAlert } = useAlert();
+  const { loading } = useApi();
 
   const fetchBloodBanks = async () => {
-    const data = await handleRequest(
-      () => bloodBankService.getAll(),
-      "",
-      "Failed to fetch blood banks"
-    );
-    setBloodBanks(data);
+    try {
+      const response = await api.get("/bloodbanks");
+      setBloodBanks(response.data);
+    } catch (error) {
+      console.error("Error fetching blood banks:", error);
+    }
   };
 
   useEffect(() => {
@@ -139,33 +136,24 @@ const BloodBankManagement = () => {
   const handleSubmit = async (formData) => {
     try {
       if (selectedBank) {
-        await handleRequest(
-          () => adminService.updateBloodBank(selectedBank.id, formData),
-          "Blood bank updated successfully"
-        );
+        await api.put(`/admins/bloodbanks/${selectedBank.id}`, formData);
       } else {
-        await handleRequest(
-          () => adminService.addBloodBank(formData),
-          "Blood bank added successfully"
-        );
+        await api.post("/admins/bloodbanks", formData);
       }
       setOpenForm(false);
       fetchBloodBanks();
     } catch (error) {
-      showAlert("Failed to save blood bank", "error");
+      console.error("Error saving blood bank:", error);
     }
   };
 
   const handleConfirmDelete = async () => {
     try {
-      await handleRequest(
-        () => adminService.deleteBloodBank(selectedBank.id),
-        "Blood bank deleted successfully"
-      );
+      await api.delete(`/admins/bloodbanks/${selectedBank.id}`);
       setOpenConfirm(false);
       fetchBloodBanks();
     } catch (error) {
-      showAlert("Failed to delete blood bank", "error");
+      console.error("Error deleting blood bank:", error);
     }
   };
 
@@ -230,7 +218,7 @@ const BloodBankManagement = () => {
           onClose={() => setOpenConfirm(false)}
           onConfirm={handleConfirmDelete}
           title="Delete Blood Bank"
-          message="Are you sure you want to delete this blood bank?"
+          message="Are you sure you want to delete this blood bank? This action cannot be undone."
         />
       </Box>
     </LoadingSpinner>

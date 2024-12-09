@@ -1,3 +1,4 @@
+//src/components/common/DataTable.js
 import React from "react";
 import {
   Table,

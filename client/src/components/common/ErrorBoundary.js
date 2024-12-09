@@ -1,3 +1,4 @@
+//src/components/common/ErrorBoundary.js
 import React from "react";
 import { Box, Typography, Button } from "@mui/material";
 

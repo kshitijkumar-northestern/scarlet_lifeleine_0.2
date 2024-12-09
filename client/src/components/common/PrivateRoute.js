@@ -1,19 +1,22 @@
-// src/components/common/PrivateRoute.jsx
+// src/components/common/PrivateRoute.js
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import LoadingSpinner from "../common/LoadingSpinner";
 
-const PrivateRoute = ({ children, roles }) => {
-  const { user, role } = useAuth();
+const PrivateRoute = ({ children, userType }) => {
+  const { user, loading } = useAuth();
 
-  // If not authenticated, redirect to the appropriate login page
-  if (!user) {
-    return <Navigate to={role === "admin" ? "/admin/login" : "/donor/login"} />;
+  if (loading) {
+    return <div>Loading...</div>; // Or your loading component
   }
 
-  // If roles are specified and user's role doesn't match, redirect to home
-  if (roles && !roles.includes(role)) {
+  if (!user) {
+    return (
+      <Navigate to={userType === "admin" ? "/admin/login" : "/donor/login"} />
+    );
+  }
+
+  if (userType && user.userType !== userType) {
     return <Navigate to="/" />;
   }
 

@@ -1,3 +1,4 @@
+//src/components/common/LoadingSpinner.js
 import React from "react";
 import { Backdrop, CircularProgress, Box } from "@mui/material";
 

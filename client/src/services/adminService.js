@@ -1,55 +1,91 @@
+// src/services/adminService.js
 import api from "./api";
 import { API_ENDPOINTS } from "../utils/constants";
 
 const adminService = {
   login: async (credentials) => {
-    const response = await api.post(API_ENDPOINTS.ADMIN_LOGIN, credentials);
-    if (response.data.token) {
-      localStorage.setItem("token", response.data.token);
-      // Add this line to store admin ID
-      localStorage.setItem("adminId", response.data.id);
+    try {
+      const response = await api.post(API_ENDPOINTS.ADMIN_LOGIN, credentials);
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+        const userData = {
+          ...response.data,
+          userType: "admin",
+        };
+        localStorage.setItem("userData", JSON.stringify(userData));
+      }
+      return response.data;
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
     }
-    return response.data;
   },
 
-  getAllAppointments: async (params) => {
-    const response = await api.get(API_ENDPOINTS.ADMIN_APPOINTMENTS, {
-      params,
-    });
-    return response.data;
+  getAllAppointments: async (id) => {
+    try {
+      const response = await api.get(`/appointments/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+      throw error;
+    }
   },
 
   updateAppointmentStatus: async (id, status) => {
-    const response = await api.put(
-      `${API_ENDPOINTS.ADMIN_APPOINTMENTS}/${id}/status`,
-      { status }
-    );
-    return response.data;
+    try {
+      const response = await api.put(
+        `/admins/appointments/${id}/status?status=${status}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error updating appointment status:", error);
+      throw error;
+    }
   },
 
   addBloodBank: async (data) => {
-    const response = await api.post(API_ENDPOINTS.ADMIN_BLOODBANKS, data);
-    return response.data;
+    try {
+      const response = await api.post(API_ENDPOINTS.ADMIN_BLOODBANKS, data);
+      return response.data;
+    } catch (error) {
+      console.error("Error adding blood bank:", error);
+      throw error;
+    }
   },
 
   updateBloodBank: async (id, data) => {
-    const response = await api.put(
-      `${API_ENDPOINTS.ADMIN_BLOODBANKS}/${id}`,
-      data
-    );
-    return response.data;
+    try {
+      const response = await api.put(
+        `${API_ENDPOINTS.ADMIN_BLOODBANKS}/${id}`,
+        data
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error updating blood bank:", error);
+      throw error;
+    }
   },
 
   deleteBloodBank: async (id) => {
-    await api.delete(`${API_ENDPOINTS.ADMIN_BLOODBANKS}/${id}`);
+    try {
+      await api.delete(`${API_ENDPOINTS.ADMIN_BLOODBANKS}/${id}`);
+    } catch (error) {
+      console.error("Error deleting blood bank:", error);
+      throw error;
+    }
   },
 
   updateInventory: async (id, inventory) => {
-    const response = await api.put(
-      `${API_ENDPOINTS.ADMIN_BLOODBANKS}/${id}/inventory`,
-      inventory
-    );
-    return response.data;
+    try {
+      const response = await api.put(
+        `${API_ENDPOINTS.ADMIN_BLOODBANKS}/${id}/inventory`,
+        inventory
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error updating inventory:", error);
+      throw error;
+    }
   },
 };
 

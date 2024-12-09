@@ -1,3 +1,4 @@
+//src/components/common/NotFound.js
 import React from "react";
 import { Box, Typography, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";

@@ -1,105 +1,55 @@
-// src/components/admin/AppointmentManagement.jsx
 import React, { useState, useEffect } from "react";
 import {
   Box,
-  Button,
   Chip,
-  IconButton,
   Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  FormControl,
-  InputLabel,
+  CircularProgress,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
   Select,
   MenuItem,
+  FormControl,
 } from "@mui/material";
-import { Visibility as ViewIcon } from "@mui/icons-material";
-import DataTable from "../common/DataTable";
-import LoadingSpinner from "../common/LoadingSpinner";
-import { useApi } from "../../hooks/useApi";
+import { useAlert } from "../../contexts/AlertContext";
 import adminService from "../../services/adminService";
-import { APPOINTMENT_STATUS } from "../../utils/constants";
-
-const AppointmentDetails = ({ appointment, open, onClose, onStatusChange }) => {
-  const [status, setStatus] = useState(appointment?.status);
-  const { handleRequest } = useApi();
-
-  const handleChange = async (newStatus) => {
-    try {
-      await handleRequest(
-        () => adminService.updateAppointmentStatus(appointment._id, newStatus),
-        "Appointment status updated successfully"
-      );
-      onStatusChange();
-      setStatus(newStatus);
-    } catch (error) {
-      // Error handling is managed by useApi hook
-    }
-  };
-
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Appointment Details</DialogTitle>
-      <DialogContent>
-        <Box sx={{ mt: 2 }}>
-          <Typography variant="subtitle1" gutterBottom>
-            <strong>Donor:</strong> {appointment?.donorName}
-          </Typography>
-          <Typography variant="subtitle1" gutterBottom>
-            <strong>Blood Bank:</strong> {appointment?.bloodBankName}
-          </Typography>
-          <Typography variant="subtitle1" gutterBottom>
-            <strong>Date:</strong>{" "}
-            {new Date(appointment?.appointmentDate).toLocaleString()}
-          </Typography>
-          <Typography variant="subtitle1" gutterBottom>
-            <strong>Blood Group:</strong> {appointment?.bloodGroup}
-          </Typography>
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel>Status</InputLabel>
-            <Select
-              value={status}
-              label="Status"
-              onChange={(e) => handleChange(e.target.value)}
-              disabled={status === "COMPLETED"}
-            >
-              {Object.entries(APPOINTMENT_STATUS).map(([key, value]) => (
-                <MenuItem key={key} value={key}>
-                  {value}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Close</Button>
-      </DialogActions>
-    </Dialog>
-  );
-};
 
 const AppointmentManagement = () => {
   const [appointments, setAppointments] = useState([]);
-  const [selectedAppointment, setSelectedAppointment] = useState(null);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const { handleRequest, loading } = useApi();
+  const [loading, setLoading] = useState(false);
+  const { showAlert } = useAlert();
 
   const fetchAppointments = async () => {
-    const data = await handleRequest(
-      () => adminService.getAllAppointments(),
-      "",
-      "Failed to fetch appointments"
-    );
-    setAppointments(data);
+    setLoading(true);
+    try {
+      const response = await adminService.getAllAppointments();
+      setAppointments(response);
+    } catch (error) {
+      console.error("Failed to fetch appointments:", error);
+      showAlert("Failed to load appointments", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchAppointments();
   }, []);
+
+  const handleStatusChange = async (appointmentId, newStatus) => {
+    try {
+      await adminService.updateAppointmentStatus(appointmentId, newStatus);
+      showAlert("Status updated successfully", "success");
+      fetchAppointments();
+    } catch (error) {
+      console.error("Error updating status:", error);
+      showAlert("Failed to update status", "error");
+    }
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -114,74 +64,82 @@ const AppointmentManagement = () => {
     }
   };
 
-  const columns = [
-    {
-      id: "appointmentDate",
-      label: "Date",
-      minWidth: 170,
-      render: (value) => new Date(value).toLocaleString(),
-    },
-    { id: "donorName", label: "Donor", minWidth: 170 },
-    { id: "bloodBankName", label: "Blood Bank", minWidth: 170 },
-    {
-      id: "status",
-      label: "Status",
-      minWidth: 130,
-      render: (value) => (
-        <Chip
-          label={APPOINTMENT_STATUS[value]}
-          color={getStatusColor(value)}
-          size="small"
-        />
-      ),
-    },
-    {
-      id: "actions",
-      label: "Actions",
-      minWidth: 100,
-      align: "right",
-      render: (_, row) => (
-        <IconButton
-          size="small"
-          onClick={() => setSelectedAppointment(row)}
-          color="primary"
-        >
-          <ViewIcon />
-        </IconButton>
-      ),
-    },
-  ];
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="400px"
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
-    <LoadingSpinner loading={loading}>
-      <Box>
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="h6">Appointment Management</Typography>
-        </Box>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h6" gutterBottom>
+        Manage Appointments
+      </Typography>
 
-        <DataTable
-          columns={columns}
-          data={appointments}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={(_, newPage) => setPage(newPage)}
-          onRowsPerPageChange={(e) => {
-            setRowsPerPage(parseInt(e.target.value, 10));
-            setPage(0);
-          }}
-          total={appointments.length}
-        />
-
-        {selectedAppointment && (
-          <AppointmentDetails
-            appointment={selectedAppointment}
-            open={Boolean(selectedAppointment)}
-            onClose={() => setSelectedAppointment(null)}
-            onStatusChange={fetchAppointments}
-          />
-        )}
-      </Box>
-    </LoadingSpinner>
+      <TableContainer component={Paper} sx={{ mt: 2 }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Date</TableCell>
+              <TableCell>Donor Name</TableCell>
+              <TableCell>Blood Bank</TableCell>
+              <TableCell>Current Status</TableCell>
+              <TableCell>Update Status</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {appointments.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} align="center">
+                  No appointments found
+                </TableCell>
+              </TableRow>
+            ) : (
+              appointments.map((appointment) => (
+                <TableRow key={appointment.id}>
+                  <TableCell>
+                    {new Date(appointment.appointmentDate).toLocaleString()}
+                  </TableCell>
+                  <TableCell>{appointment.donorName}</TableCell>
+                  <TableCell>{appointment.bloodBankName}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={appointment.status}
+                      color={getStatusColor(appointment.status)}
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <FormControl size="small" sx={{ minWidth: 150 }}>
+                      <Select
+                        value={appointment.status}
+                        onChange={(e) =>
+                          handleStatusChange(appointment.id, e.target.value)
+                        }
+                        disabled={appointment.status === "COMPLETED"}
+                        size="small"
+                      >
+                        <MenuItem value="PENDING">Set as Pending</MenuItem>
+                        <MenuItem value="ACCEPTED">Accept Appointment</MenuItem>
+                        <MenuItem value="REJECTED">Reject Appointment</MenuItem>
+                        <MenuItem value="COMPLETED">Mark as Completed</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 };
 

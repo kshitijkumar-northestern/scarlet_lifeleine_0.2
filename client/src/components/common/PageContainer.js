@@ -1,3 +1,4 @@
+//src/components/common/PageContainer.js
 import React from "react";
 import { Container, Paper, Typography, Box } from "@mui/material";
 

@@ -1,19 +1,21 @@
-import React, { useState } from "react";
+// src/components/admin/AdminDashboard.js
+import React, { useState, useEffect } from "react";
 import {
   Box,
-  Tab,
-  Tabs,
   Container,
-  Paper,
   Grid,
   Card,
   CardContent,
   Typography,
+  Paper,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import { LocalHospital, People, EventNote } from "@mui/icons-material";
 import BloodBankManagement from "./BloodBankManagement";
 import AppointmentManagement from "./AppointmentManagement";
 import { useAuth } from "../../contexts/AuthContext";
+import api from "../../services/api";
 
 const DashboardCard = ({ title, value, icon, color }) => (
   <Card sx={{ height: "100%" }}>
@@ -47,15 +49,24 @@ const DashboardCard = ({ title, value, icon, color }) => (
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState(0);
   const { user } = useAuth();
-  const [stats] = useState({
-    bloodBanks: 5,
-    donors: 120,
-    appointments: 25,
+  const [dashboardStats, setDashboardStats] = useState({
+    bloodBanks: 0,
+    donors: 0,
+    pendingAppointments: 0,
   });
 
-  const handleTabChange = (event, newValue) => {
-    setActiveTab(newValue);
-  };
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      try {
+        const response = await api.get("/admins/dashboard/stats");
+        setDashboardStats(response.data);
+      } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
+      }
+    };
+
+    fetchDashboardStats();
+  }, []);
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -69,7 +80,7 @@ const AdminDashboard = () => {
         <Grid item xs={12} sm={6} md={4}>
           <DashboardCard
             title="Total Blood Banks"
-            value={stats.bloodBanks}
+            value={dashboardStats.bloodBanks}
             icon={<LocalHospital sx={{ color: "#2196f3" }} />}
             color="#2196f3"
           />
@@ -77,7 +88,7 @@ const AdminDashboard = () => {
         <Grid item xs={12} sm={6} md={4}>
           <DashboardCard
             title="Registered Donors"
-            value={stats.donors}
+            value={dashboardStats.donors}
             icon={<People sx={{ color: "#4caf50" }} />}
             color="#4caf50"
           />
@@ -85,7 +96,7 @@ const AdminDashboard = () => {
         <Grid item xs={12} sm={6} md={4}>
           <DashboardCard
             title="Pending Appointments"
-            value={stats.appointments}
+            value={dashboardStats.pendingAppointments}
             icon={<EventNote sx={{ color: "#ff9800" }} />}
             color="#ff9800"
           />
@@ -95,7 +106,7 @@ const AdminDashboard = () => {
       <Paper sx={{ width: "100%", mb: 2 }}>
         <Tabs
           value={activeTab}
-          onChange={handleTabChange}
+          onChange={(_, newValue) => setActiveTab(newValue)}
           sx={{ borderBottom: 1, borderColor: "divider" }}
         >
           <Tab label="Blood Banks" />

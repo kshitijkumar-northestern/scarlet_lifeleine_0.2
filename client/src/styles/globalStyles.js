@@ -1,3 +1,4 @@
+//src/styles/globalStyles.js
 import { alpha } from "@mui/material/styles";
 
 export const globalStyles = {
