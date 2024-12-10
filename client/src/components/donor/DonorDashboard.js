@@ -173,6 +173,7 @@ const AppointmentCard = ({ appointment, bloodBank }) => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
+            mb: 2,
           }}
         >
           <Typography variant="h6" gutterBottom>
@@ -184,9 +185,38 @@ const AppointmentCard = ({ appointment, bloodBank }) => {
             size="small"
           />
         </Box>
-        <Typography color="textSecondary" gutterBottom>
-          Date: {new Date(appointment.appointmentDate).toLocaleString()}
-        </Typography>
+
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <Typography color="textSecondary" gutterBottom>
+              <Box component="span" sx={{ fontWeight: "medium" }}>
+                Appointment Date:
+              </Box>{" "}
+              {new Date(appointment.appointmentDate).toLocaleString()}
+            </Typography>
+          </Grid>
+
+          {bloodBank && (
+            <>
+              <Grid item xs={12}>
+                <Typography color="textSecondary">
+                  <Box component="span" sx={{ fontWeight: "medium" }}>
+                    Address:
+                  </Box>{" "}
+                  {bloodBank.address}
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography color="textSecondary">
+                  <Box component="span" sx={{ fontWeight: "medium" }}>
+                    Contact:
+                  </Box>{" "}
+                  {bloodBank.contactNumber}
+                </Typography>
+              </Grid>
+            </>
+          )}
+        </Grid>
       </CardContent>
     </Card>
   );
@@ -205,10 +235,17 @@ const DonorDashboard = () => {
 
     setLoading(true);
     try {
+      // Get appointments and blood banks
       const [appointmentsResponse, bloodBanksResponse] = await Promise.all([
         donorService.getAppointments(user.id),
         bloodBankService.getAll(),
       ]);
+
+      // Ensure we have complete blood bank information
+      const bloodBanksMap = bloodBanksResponse.reduce((acc, bank) => {
+        acc[bank.id] = bank;
+        return acc;
+      }, {});
 
       setAppointments(appointmentsResponse);
       setBloodBanks(bloodBanksResponse);
