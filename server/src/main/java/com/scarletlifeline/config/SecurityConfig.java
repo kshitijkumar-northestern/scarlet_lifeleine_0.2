@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/bloodbanks/**").permitAll()
 
                         // Donor endpoints
+                        .requestMatchers("/donors/{id}").permitAll()
                         .requestMatchers("/donors/login").permitAll()
                         .requestMatchers("/donors/register").permitAll()
                         .requestMatchers("/donors/appointments").permitAll()

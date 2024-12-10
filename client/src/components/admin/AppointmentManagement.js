@@ -14,36 +14,85 @@ import {
   MenuItem,
   Chip,
   CircularProgress,
+  Typography,
 } from "@mui/material";
 import { useAlert } from "../../contexts/AlertContext";
-import appointmentService from "../../services/appointmentService";
+import api from "../../services/api";
+import bloodBankService from "../../services/bloodBankService";
 
 const AppointmentManagement = () => {
   const [appointments, setAppointments] = useState([]);
+  const [bloodBanks, setBloodBanks] = useState({});
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
   const { showAlert } = useAlert();
 
+  // Fetch blood banks data
+  const fetchBloodBanks = async () => {
+    try {
+      const response = await bloodBankService.getAll();
+      // Convert array to object map for easy lookup
+      const bloodBankMap = response.reduce((acc, bank) => {
+        acc[bank.id] = bank;
+        return acc;
+      }, {});
+      setBloodBanks(bloodBankMap);
+    } catch (error) {
+      console.error("Failed to fetch blood banks:", error);
+      showAlert("Failed to load blood banks", "error");
+    }
+  };
+
   const fetchAppointments = async () => {
     try {
-      const data = await appointmentService.getAll();
-      setAppointments(data);
+      const response = await api.get("/appointments");
+      // Enhance appointments with donor and blood bank names
+      const enhancedAppointments = await Promise.all(
+        response.data.map(async (appointment) => {
+          // Fetch donor details
+          try {
+            const donorResponse = await api.get(
+              `/donors/${appointment.donorId}`
+            );
+            return {
+              ...appointment,
+              donorName: donorResponse.data.name || appointment.donorId,
+            };
+          } catch (error) {
+            console.error("Error fetching donor details:", error);
+            return {
+              ...appointment,
+              donorName: "Unknown Donor",
+            };
+          }
+        })
+      );
+      setAppointments(enhancedAppointments);
     } catch (error) {
       console.error("Failed to fetch appointments:", error);
       showAlert("Failed to load appointments", "error");
+    }
+  };
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      await Promise.all([fetchBloodBanks(), fetchAppointments()]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAppointments();
+    fetchData();
   }, []);
 
   const handleStatusChange = async (appointmentId, newStatus) => {
     try {
       setUpdatingId(appointmentId);
-      await appointmentService.updateStatus(appointmentId, newStatus);
+      await api.put(`/admins/appointments/${appointmentId}/status`, null, {
+        params: { status: newStatus },
+      });
       showAlert("Status updated successfully", "success");
       await fetchAppointments();
     } catch (error) {
@@ -81,7 +130,7 @@ const AppointmentManagement = () => {
         <TableHead>
           <TableRow>
             <TableCell>Date</TableCell>
-            <TableCell>Donor</TableCell>
+            <TableCell>Donor Name</TableCell>
             <TableCell>Blood Bank</TableCell>
             <TableCell>Current Status</TableCell>
             <TableCell>Update Status</TableCell>
@@ -91,7 +140,9 @@ const AppointmentManagement = () => {
           {appointments.length === 0 ? (
             <TableRow>
               <TableCell colSpan={5} align="center">
-                No appointments found
+                <Typography color="textSecondary">
+                  No appointments found
+                </Typography>
               </TableCell>
             </TableRow>
           ) : (
@@ -100,8 +151,11 @@ const AppointmentManagement = () => {
                 <TableCell>
                   {new Date(appointment.appointmentDate).toLocaleString()}
                 </TableCell>
-                <TableCell>{appointment.donorId}</TableCell>
-                <TableCell>{appointment.bloodBankId}</TableCell>
+                <TableCell>{appointment.donorName}</TableCell>
+                <TableCell>
+                  {bloodBanks[appointment.bloodBankId]?.name ||
+                    "Unknown Blood Bank"}
+                </TableCell>
                 <TableCell>
                   <Chip
                     label={appointment.status}

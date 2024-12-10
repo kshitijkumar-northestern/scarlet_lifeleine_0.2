@@ -42,4 +42,9 @@ public class DonorService {
 
         return donor;
     }
+
+    public Donor getDonorById(String id) {
+        return donorRepository.findById(id)
+                .orElseThrow(() -> new CustomException("Donor not found"));
+    }
 }

@@ -8,6 +8,8 @@ import com.scarletlifeline.model.Appointment;
 import com.scarletlifeline.model.Donor;
 import com.scarletlifeline.service.DonorService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,16 @@ import java.util.List;
 public class DonorController {
     private final DonorService donorService;
     private final AppointmentService appointmentService;
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Get donor by ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Donor found"),
+            @ApiResponse(responseCode = "404", description = "Donor not found")
+    })
+    public ResponseEntity<Donor> getDonor(@PathVariable String id) {
+        return ResponseEntity.ok(donorService.getDonorById(id));
+    }
 
     @PostMapping("/register")
     @Operation(summary = "Register new donor")
