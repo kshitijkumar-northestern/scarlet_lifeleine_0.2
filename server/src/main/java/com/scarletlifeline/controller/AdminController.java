@@ -56,6 +56,14 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/bloodbanks/{id}")
+    @Operation(summary = "Edit blood bank details")
+    public ResponseEntity<BloodBank> editBloodBank(
+            @PathVariable String id,
+            @Valid @RequestBody BloodBankDTO dto) {
+        return ResponseEntity.ok(bloodBankService.editBloodBank(id, dto));
+    }
+
     @PutMapping("/bloodbanks/{id}/inventory")
     @Operation(summary = "Update blood bank inventory")
     public ResponseEntity<BloodBank> updateInventory(

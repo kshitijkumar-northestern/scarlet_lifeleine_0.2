@@ -49,4 +49,20 @@ public class BloodBankService {
         return bloodBankRepository.findById(id)
                 .orElseThrow(() -> new CustomException("Blood bank not found"));
     }
+
+    public BloodBank editBloodBank(String id, BloodBankDTO dto) {
+        BloodBank bloodBank = bloodBankRepository.findById(id)
+                .orElseThrow(() -> new CustomException("Blood bank not found"));
+
+        bloodBank.setName(dto.getName());
+        bloodBank.setAddress(dto.getAddress());
+        bloodBank.setContactNumber(dto.getContactNumber());
+
+        // Only update inventory if it's provided in the DTO
+        if (dto.getInventory() != null) {
+            bloodBank.setInventory(dto.getInventory());
+        }
+
+        return bloodBankRepository.save(bloodBank);
+    }
 }

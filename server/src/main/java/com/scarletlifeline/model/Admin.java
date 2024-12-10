@@ -1,5 +1,5 @@
 
-        package com.scarletlifeline.model;
+package com.scarletlifeline.model;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
