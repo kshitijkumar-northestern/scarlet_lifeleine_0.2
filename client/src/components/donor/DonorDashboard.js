@@ -25,6 +25,7 @@ import donorService from "../../services/donorService";
 import bloodBankService from "../../services/bloodBankService";
 import api from "../../services/api";
 
+// Update the AppointmentForm component
 const AppointmentForm = ({ open, onClose, bloodBanks, donorId }) => {
   const { showAlert } = useAlert();
   const [loading, setLoading] = useState(false);
@@ -51,21 +52,33 @@ const AppointmentForm = ({ open, onClose, bloodBanks, donorId }) => {
 
     setLoading(true);
     try {
-      // Format request according to Swagger specification
-      const url = `/donors/appointments?donorId=${donorId}`;
+      // Get the selected date
+      const selectedDate = new Date(formData.appointmentDate);
+
+      // Get timezone offset in minutes
+      const timezoneOffset = selectedDate.getTimezoneOffset();
+
+      // Add the offset to compensate for the timezone difference
+      const adjustedDate = new Date(
+        selectedDate.getTime() - timezoneOffset * 60000
+      );
+
       const appointmentData = {
         bloodBankId: formData.bloodBankId,
-        appointmentDate: new Date(formData.appointmentDate).toISOString(),
+        appointmentDate: adjustedDate.toISOString(),
       };
 
-      console.log("Creating appointment with:", {
-        url,
-        data: appointmentData,
+      console.log("Appointment Creation Details:", {
+        originalDate: selectedDate.toString(),
+        timezoneOffset: timezoneOffset,
+        adjustedDate: adjustedDate.toString(),
+        isoString: appointmentData.appointmentDate,
       });
 
-      const response = await api.post(url, appointmentData);
-      console.log("Appointment creation response:", response);
-
+      const response = await api.post(
+        `/donors/appointments?donorId=${donorId}`,
+        appointmentData
+      );
       showAlert("Appointment scheduled successfully", "success");
       onClose(true);
     } catch (error) {
@@ -127,7 +140,15 @@ const AppointmentForm = ({ open, onClose, bloodBanks, donorId }) => {
                 )}
                 minDate={new Date()}
                 disabled={loading}
+                ampm={true}
+                minutesStep={30}
               />
+              {formData.appointmentDate && (
+                <Typography variant="caption" color="textSecondary">
+                  Selected time:{" "}
+                  {new Date(formData.appointmentDate).toLocaleString()}
+                </Typography>
+              )}
             </Box>
           </DialogContent>
           <DialogActions>
