@@ -18,15 +18,21 @@ import {
   alpha,
   IconButton,
   Tooltip,
+  Collapse,
+  Grid,
 } from "@mui/material";
-import { Delete as DeleteIcon } from "@mui/icons-material";
+import {
+  Delete as DeleteIcon,
+  KeyboardArrowDown as KeyboardArrowDownIcon,
+  KeyboardArrowUp as KeyboardArrowUpIcon,
+} from "@mui/icons-material";
 import LoadingSpinner from "../common/LoadingSpinner";
 import ConfirmDialog from "../common/ConfirmDialog";
 import { useAlert } from "../../contexts/AlertContext";
 import api from "../../services/api";
 import bloodBankService from "../../services/bloodBankService";
 
-// Styled Components
+// Existing styled components
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   padding: "12px 16px",
   fontSize: "0.875rem",
@@ -78,26 +84,218 @@ const StyledFormControl = styled(FormControl)(({ theme }) => ({
   },
 }));
 
+const ExpandButton = styled(IconButton)(({ theme }) => ({
+  width: 28,
+  height: 28,
+  padding: 2,
+  marginRight: theme.spacing(1),
+  backgroundColor:
+    theme.palette.mode === "dark"
+      ? alpha(theme.palette.action.active, 0.05)
+      : alpha(theme.palette.action.active, 0.03),
+  "&:hover": {
+    backgroundColor:
+      theme.palette.mode === "dark"
+        ? alpha(theme.palette.action.active, 0.1)
+        : alpha(theme.palette.action.active, 0.05),
+  },
+}));
+
+// Status configurations
+const STATUS_CONFIGS = {
+  PENDING: { color: "#FF9F0A", label: "Pending" },
+  ACCEPTED: { color: "#32D74B", label: "Accepted" },
+  REJECTED: { color: "#FF453A", label: "Rejected" },
+  COMPLETED: { color: "#30D158", label: "Completed" },
+};
+
+// Enhanced Row Component
+const AppointmentRow = ({
+  appointment,
+  bloodBank,
+  onDelete,
+  onStatusChange,
+  updatingId,
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <TableRow
+        hover
+        sx={{
+          "& > *": { borderBottom: open ? "unset" : undefined },
+          "&:hover": {
+            backgroundColor: (theme) =>
+              theme.palette.mode === "dark"
+                ? alpha(theme.palette.action.hover, 0.1)
+                : alpha(theme.palette.action.hover, 0.05),
+          },
+        }}
+      >
+        <StyledTableCell>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <ExpandButton size="small" onClick={() => setOpen(!open)}>
+              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            </ExpandButton>
+            {new Date(appointment.appointmentDate).toLocaleString()}
+          </Box>
+        </StyledTableCell>
+        <StyledTableCell>{appointment.donorName}</StyledTableCell>
+        <StyledTableCell>
+          {bloodBank?.name || "Unknown Blood Bank"}
+        </StyledTableCell>
+        <StyledTableCell>
+          <StyledChip
+            label={STATUS_CONFIGS[appointment.status].label}
+            customcolor={STATUS_CONFIGS[appointment.status].color}
+            size="small"
+          />
+        </StyledTableCell>
+        <StyledTableCell>
+          <StyledFormControl
+            size="small"
+            sx={{ minWidth: 120 }}
+            disabled={updatingId === appointment.id}
+          >
+            <Select
+              value={appointment.status}
+              onChange={(e) => onStatusChange(appointment.id, e.target.value)}
+              disabled={appointment.status === "COMPLETED"}
+              size="small"
+            >
+              <MenuItem value="PENDING">Pending</MenuItem>
+              <MenuItem value="ACCEPTED">Accept</MenuItem>
+              <MenuItem value="REJECTED">Reject</MenuItem>
+              <MenuItem value="COMPLETED">Complete</MenuItem>
+            </Select>
+          </StyledFormControl>
+        </StyledTableCell>
+        <StyledTableCell align="right">
+          <Tooltip title="Delete Appointment">
+            <IconButton
+              onClick={() => onDelete(appointment)}
+              size="small"
+              sx={{
+                backgroundColor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? alpha(theme.palette.error.main, 0.1)
+                    : alpha(theme.palette.error.main, 0.05),
+                "&:hover": {
+                  backgroundColor: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? alpha(theme.palette.error.main, 0.2)
+                      : alpha(theme.palette.error.main, 0.1),
+                },
+              }}
+            >
+              <DeleteIcon fontSize="small" color="error" />
+            </IconButton>
+          </Tooltip>
+        </StyledTableCell>
+      </TableRow>
+      <TableRow>
+        <StyledTableCell
+          colSpan={6}
+          sx={{ py: 0, borderBottom: open ? undefined : "none" }}
+        >
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box sx={{ py: 2 }}>
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6}>
+                  <Box
+                    sx={{
+                      p: 2,
+                      borderRadius: 2,
+                      bgcolor: (theme) =>
+                        theme.palette.mode === "dark"
+                          ? alpha(theme.palette.background.paper, 0.3)
+                          : alpha(theme.palette.background.paper, 0.5),
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle2"
+                      color="text.secondary"
+                      gutterBottom
+                    >
+                      Donor Information
+                    </Typography>
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      <strong>Name:</strong> {appointment.donorName}
+                    </Typography>
+                    <Typography variant="body2">
+                      <strong>ID:</strong> {appointment.donorId}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Box
+                    sx={{
+                      p: 2,
+                      borderRadius: 2,
+                      bgcolor: (theme) =>
+                        theme.palette.mode === "dark"
+                          ? alpha(theme.palette.background.paper, 0.3)
+                          : alpha(theme.palette.background.paper, 0.5),
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle2"
+                      color="text.secondary"
+                      gutterBottom
+                    >
+                      Blood Bank Information
+                    </Typography>
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      <strong>Name:</strong>{" "}
+                      {bloodBank?.name || "Unknown Blood Bank"}
+                    </Typography>
+                    <Typography variant="body2">
+                      <strong>Address:</strong> {bloodBank?.address || "N/A"}
+                    </Typography>
+                    <Typography variant="body2">
+                      <strong>Contact:</strong>{" "}
+                      {bloodBank?.contactNumber || "N/A"}
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Box>
+          </Collapse>
+        </StyledTableCell>
+      </TableRow>
+    </>
+  );
+};
+
 const AppointmentManagement = () => {
+  // Existing state and functions remain unchanged
   const [appointments, setAppointments] = useState([]);
   const [bloodBanks, setBloodBanks] = useState({});
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const { showAlert } = useAlert();
 
-  // Status configurations
-  const STATUS_CONFIGS = {
-    PENDING: { color: "#FF9F0A", label: "Pending" },
-    ACCEPTED: { color: "#32D74B", label: "Accepted" },
-    REJECTED: { color: "#FF453A", label: "Rejected" },
-    COMPLETED: { color: "#30D158", label: "Completed" },
-  };
+  // Existing fetch functions and effects remain unchanged
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([fetchBloodBanks(), fetchAppointments()]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+    const interval = setInterval(fetchData, 300000);
+    return () => clearInterval(interval);
+  }, []);
 
-  // Fetch data functions
+  // Keep existing API functions
   const fetchBloodBanks = async () => {
     try {
       const response = await bloodBankService.getAll();
@@ -137,20 +335,6 @@ const AppointmentManagement = () => {
       showAlert("Failed to load appointments", "error");
     }
   };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        await Promise.all([fetchBloodBanks(), fetchAppointments()]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-    const interval = setInterval(fetchData, 300000); // Refresh every 5 minutes
-    return () => clearInterval(interval);
-  }, []);
 
   const handleStatusChange = async (appointmentId, newStatus) => {
     try {
@@ -241,76 +425,14 @@ const AppointmentManagement = () => {
                 {appointments
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((appointment) => (
-                    <TableRow
+                    <AppointmentRow
                       key={appointment.id}
-                      sx={{
-                        "&:hover": {
-                          backgroundColor: (theme) =>
-                            theme.palette.mode === "dark"
-                              ? alpha(theme.palette.action.hover, 0.1)
-                              : alpha(theme.palette.action.hover, 0.05),
-                        },
-                      }}
-                    >
-                      <StyledTableCell>
-                        {new Date(appointment.appointmentDate).toLocaleString()}
-                      </StyledTableCell>
-                      <StyledTableCell>{appointment.donorName}</StyledTableCell>
-                      <StyledTableCell>
-                        {bloodBanks[appointment.bloodBankId]?.name ||
-                          "Unknown Blood Bank"}
-                      </StyledTableCell>
-                      <StyledTableCell>
-                        <StyledChip
-                          label={STATUS_CONFIGS[appointment.status].label}
-                          customcolor={STATUS_CONFIGS[appointment.status].color}
-                          size="small"
-                        />
-                      </StyledTableCell>
-                      <StyledTableCell>
-                        <StyledFormControl
-                          size="small"
-                          sx={{ minWidth: 120 }}
-                          disabled={updatingId === appointment.id}
-                        >
-                          <Select
-                            value={appointment.status}
-                            onChange={(e) =>
-                              handleStatusChange(appointment.id, e.target.value)
-                            }
-                            disabled={appointment.status === "COMPLETED"}
-                            size="small"
-                          >
-                            <MenuItem value="PENDING">Pending</MenuItem>
-                            <MenuItem value="ACCEPTED">Accept</MenuItem>
-                            <MenuItem value="REJECTED">Reject</MenuItem>
-                            <MenuItem value="COMPLETED">Complete</MenuItem>
-                          </Select>
-                        </StyledFormControl>
-                      </StyledTableCell>
-                      <StyledTableCell align="right">
-                        <Tooltip title="Delete Appointment">
-                          <IconButton
-                            onClick={() => handleDeleteClick(appointment)}
-                            size="small"
-                            sx={{
-                              backgroundColor: (theme) =>
-                                theme.palette.mode === "dark"
-                                  ? alpha(theme.palette.error.main, 0.1)
-                                  : alpha(theme.palette.error.main, 0.05),
-                              "&:hover": {
-                                backgroundColor: (theme) =>
-                                  theme.palette.mode === "dark"
-                                    ? alpha(theme.palette.error.main, 0.2)
-                                    : alpha(theme.palette.error.main, 0.1),
-                              },
-                            }}
-                          >
-                            <DeleteIcon fontSize="small" color="error" />
-                          </IconButton>
-                        </Tooltip>
-                      </StyledTableCell>
-                    </TableRow>
+                      appointment={appointment}
+                      bloodBank={bloodBanks[appointment.bloodBankId]}
+                      onDelete={handleDeleteClick}
+                      onStatusChange={handleStatusChange}
+                      updatingId={updatingId}
+                    />
                   ))}
               </TableBody>
             </Table>
