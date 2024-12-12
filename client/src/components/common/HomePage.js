@@ -105,70 +105,6 @@ const AppleCard = ({ icon, title, description, delay = 0 }) => (
   </motion.div>
 );
 
-const StatisticCard = ({ number, label, icon, delay = 0 }) => (
-  <motion.div
-    initial={{ opacity: 0, scale: 0.95 }}
-    whileInView={{ opacity: 1, scale: 1 }}
-    transition={{ duration: 0.5, delay }}
-    viewport={{ once: true }}
-  >
-    <Box
-      sx={{
-        textAlign: "center",
-        p: 4,
-        borderRadius: "20px",
-        bgcolor: (theme) =>
-          theme.palette.mode === "dark"
-            ? "rgba(255, 255, 255, 0.05)"
-            : "rgba(255, 255, 255, 0.8)",
-        backdropFilter: "blur(20px)",
-        border: (theme) =>
-          `1px solid ${
-            theme.palette.mode === "dark"
-              ? "rgba(255, 255, 255, 0.1)"
-              : "rgba(0, 0, 0, 0.05)"
-          }`,
-      }}
-    >
-      <Box
-        sx={{
-          mb: 2,
-          display: "inline-flex",
-          p: 1.5,
-          borderRadius: "12px",
-          bgcolor: (theme) =>
-            theme.palette.mode === "dark"
-              ? "rgba(59, 130, 246, 0.2)"
-              : "rgba(59, 130, 246, 0.1)",
-        }}
-      >
-        {icon}
-      </Box>
-      <Typography
-        sx={{
-          fontWeight: 700,
-          fontSize: { xs: "2rem", md: "2.5rem" },
-          background: "linear-gradient(135deg, #3b82f6 0%, #10b981 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          mb: 1,
-        }}
-      >
-        {number}
-      </Typography>
-      <Typography
-        variant="body2"
-        sx={{
-          color: "text.secondary",
-          fontWeight: 500,
-        }}
-      >
-        {label}
-      </Typography>
-    </Box>
-  </motion.div>
-);
-
 const TestimonialCard = ({ quote, author, location, delay = 0 }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
@@ -516,7 +452,6 @@ const HomePage = () => {
             Why Choose Us
           </Typography>
           <Grid container spacing={4}>
-            // Continuing from the previous code...
             {features.map((feature, index) => (
               <Grid item xs={12} md={4} key={index}>
                 <AppleCard {...feature} delay={index * 0.1} />

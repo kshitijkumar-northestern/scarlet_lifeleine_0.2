@@ -32,8 +32,7 @@ const App = () => {
                     component="main"
                     sx={{
                       flexGrow: 1,
-                      display: "flex",
-                      flexDirection: "column",
+                      width: "100%",
                     }}
                   >
                     <AppRoutes />

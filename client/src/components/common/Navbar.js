@@ -81,7 +81,7 @@ const Navbar = () => {
       ]
     : [
         {
-          text: "Donor Login",
+          text: "Login",
           path: "/donor/login",
         },
         {
@@ -89,7 +89,7 @@ const Navbar = () => {
           path: "/donor/register",
         },
         {
-          text: "Admin Login",
+          text: "Admin",
           path: "/admin/login",
         },
       ];
