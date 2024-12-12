@@ -1,5 +1,3 @@
-
-
 // ErrorResponse.java
 package com.scarletlifeline.exception;
 

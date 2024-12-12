@@ -1,14 +1,21 @@
 // src/routes.js
 import React, { Suspense } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import LoadingSpinner from "./components/common/LoadingSpinner";
 import PrivateRoute from "./components/common/PrivateRoute";
 
-// Lazy loaded components
+// Public pages
+const HomePage = React.lazy(() => import("./components/common/HomePage"));
+const AboutPage = React.lazy(() => import("./components/common/AboutPage"));
+const ContactPage = React.lazy(() => import("./components/common/ContactPage"));
+
+// Admin pages
 const AdminLogin = React.lazy(() => import("./components/admin/AdminLogin"));
 const AdminDashboard = React.lazy(() =>
   import("./components/admin/AdminDashboard")
 );
+
+// Donor pages
 const DonorLogin = React.lazy(() => import("./components/donor/DonorLogin"));
 const DonorRegistration = React.lazy(() =>
   import("./components/donor/DonorRegistration")
@@ -16,6 +23,8 @@ const DonorRegistration = React.lazy(() =>
 const DonorDashboard = React.lazy(() =>
   import("./components/donor/DonorDashboard")
 );
+
+// Error page
 const NotFound = React.lazy(() => import("./components/common/NotFound"));
 
 const AppRoutes = () => {
@@ -23,10 +32,16 @@ const AppRoutes = () => {
     <Suspense fallback={<LoadingSpinner />}>
       <Routes>
         {/* Public routes */}
-        <Route path="/" element={<Navigate to="/donor/login" />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
 
-        {/* Admin routes */}
+        {/* Auth routes */}
+        <Route path="/donor/login" element={<DonorLogin />} />
+        <Route path="/donor/register" element={<DonorRegistration />} />
         <Route path="/admin/login" element={<AdminLogin />} />
+
+        {/* Protected routes */}
         <Route
           path="/admin/dashboard/*"
           element={
@@ -35,10 +50,6 @@ const AppRoutes = () => {
             </PrivateRoute>
           }
         />
-
-        {/* Donor routes */}
-        <Route path="/donor/login" element={<DonorLogin />} />
-        <Route path="/donor/register" element={<DonorRegistration />} />
         <Route
           path="/donor/dashboard/*"
           element={

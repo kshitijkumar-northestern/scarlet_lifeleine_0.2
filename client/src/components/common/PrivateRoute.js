@@ -1,23 +1,29 @@
 // src/components/common/PrivateRoute.js
 import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
 const PrivateRoute = ({ children, userType }) => {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
-    return <div>Loading...</div>; // Or your loading component
+    return <div>Loading...</div>;
   }
 
   if (!user) {
+    // Redirect to login with return URL
     return (
-      <Navigate to={userType === "admin" ? "/admin/login" : "/donor/login"} />
+      <Navigate
+        to={userType === "admin" ? "/admin/login" : "/donor/login"}
+        state={{ from: location.pathname }}
+        replace
+      />
     );
   }
 
   if (userType && user.userType !== userType) {
-    return <Navigate to="/" />;
+    return <Navigate to="/" replace />;
   }
 
   return children;

@@ -1,4 +1,3 @@
-//src/components/common/Navbar.js
 import React, { useState } from "react";
 import {
   AppBar,
@@ -10,8 +9,6 @@ import {
   useMediaQuery,
   Drawer,
   List,
-  ListItem,
-  ListItemText,
   Container,
   alpha,
 } from "@mui/material";
@@ -38,11 +35,39 @@ const Navbar = () => {
 
   const handleLogout = () => {
     logout();
-    navigate("/");
     handleDrawerToggle();
   };
 
-  const menuItems = user
+  const handleNavigation = (path, shouldLogout = false) => {
+    if (shouldLogout && user) {
+      logout();
+    } else {
+      navigate(path);
+    }
+    handleDrawerToggle();
+  };
+
+  // Public menu items that are always visible
+  const publicMenuItems = [
+    {
+      text: "Home",
+      path: "/",
+      requiresLogout: true,
+    },
+    {
+      text: "About",
+      path: "/about",
+      requiresLogout: false,
+    },
+    {
+      text: "Contact",
+      path: "/contact",
+      requiresLogout: false,
+    },
+  ];
+
+  // Auth-specific menu items
+  const authMenuItems = user
     ? [
         {
           text: "Dashboard",
@@ -69,6 +94,9 @@ const Navbar = () => {
         },
       ];
 
+  // Combine all menu items
+  const menuItems = [...publicMenuItems, ...authMenuItems];
+
   const drawer = (
     <Box
       sx={{
@@ -78,178 +106,159 @@ const Navbar = () => {
       }}
     >
       <List sx={{ px: 2 }}>
-        {menuItems.map((item) => {
-          const ItemComponent = item.path ? RouterLink : "div";
-
-          return (
+        {menuItems.map((item) => (
+          <Box
+            key={item.text}
+            onClick={
+              item.onClick ||
+              (() => handleNavigation(item.path, item.requiresLogout))
+            }
+            sx={{
+              width: "100%",
+              mb: 0.5,
+              textDecoration: "none",
+              "&:last-child": { mb: 0 },
+            }}
+          >
             <Box
-              key={item.text}
-              onClick={item.onClick}
-              component={ItemComponent}
-              to={item.path}
               sx={(theme) => ({
+                py: 1.5,
+                px: 2,
                 width: "100%",
-                mb: 0.5,
-                textDecoration: "none",
-                "&:last-child": {
-                  mb: 0,
-                },
-                ".MuiButtonBase-root": {
-                  border: "none",
-                  boxShadow: "none",
-                  textTransform: "none",
-                  width: "100%",
-                  p: 0,
-                  borderRadius: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                color: theme.palette.text.primary,
+                cursor: "pointer",
+                backgroundColor:
+                  theme.palette.mode === "dark" ? "#2C2C2E" : "#F2F2F7",
+                transition: "all 0.2s",
+                borderRadius: 2,
+                margin: 1,
+                "&:hover": {
+                  backgroundColor:
+                    theme.palette.mode === "dark" ? "#3A3A3C" : "#E5E5EA",
                 },
               })}
             >
-              <Box
-                sx={(theme) => ({
-                  py: 1.5,
-                  px: 2,
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  color: theme.palette.text.primary,
-                  cursor: "pointer",
-                  backgroundColor:
-                    theme.palette.mode === "dark" ? "#2C2C2E" : "#F2F2F7",
-                  transition: "all 0.2s",
-                  border: "none",
-                  fontWeight: "normal",
-                  borderRadius: 2,
-                  margin: 1,
-                  "&:hover": {
-                    backgroundColor:
-                      theme.palette.mode === "dark" ? "#3A3A3C" : "#E5E5EA",
-                  },
-                  "&:active": {
-                    backgroundColor:
-                      theme.palette.mode === "dark" ? "#3A3A3C" : "#E5E5EA",
-                    transform: "scale(0.98)",
-                  },
-                })}
-              >
-                <Typography
-                  sx={{
-                    fontSize: "16px",
-                    fontWeight: 400,
-                    color: "inherit",
-                  }}
-                >
-                  {item.text}
-                </Typography>
-                {item.icon && (
-                  <Box
-                    component="span"
-                    sx={{
-                      ml: 1,
-                      display: "flex",
-                      alignItems: "center",
-                      color: "inherit",
-                      opacity: 0.7,
-                    }}
-                  >
-                    {item.icon}
-                  </Box>
-                )}
-              </Box>
-            </Box>
-          );
-        })}
-      </List>
-    </Box>
-  );
-  return (
-    <>
-      <AppBar
-        position="sticky"
-        elevation={0}
-        sx={{
-          backgroundColor:
-            mode === "dark" ? alpha("#1C1C1E", 0.8) : alpha("#FFFFFF", 0.8),
-          backdropFilter: "blur(20px)",
-          borderBottom: `0.5px solid ${
-            mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
-          }`,
-          color: mode === "dark" ? "#FFFFFF" : "#000000",
-        }}
-      >
-        <Container maxWidth="lg">
-          <Toolbar sx={{ py: 1 }}>
-            {isMobile && (
-              <IconButton
-                edge="start"
-                onClick={handleDrawerToggle}
+              <Typography
                 sx={{
-                  mr: 2,
+                  fontSize: "16px",
+                  fontWeight: 400,
                   color: "inherit",
                 }}
               >
-                <MenuIcon />
-              </IconButton>
-            )}
+                {item.text}
+              </Typography>
+              {item.icon && (
+                <Box
+                  component="span"
+                  sx={{
+                    ml: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    color: "inherit",
+                    opacity: 0.7,
+                  }}
+                >
+                  {item.icon}
+                </Box>
+              )}
+            </Box>
+          </Box>
+        ))}
+      </List>
+    </Box>
+  );
 
-            <Typography
-              variant="h6"
-              component={RouterLink}
-              to="/"
-              sx={{
-                flexGrow: 1,
-                textDecoration: "none",
-                color: "inherit",
-                fontWeight: 600,
-                fontSize: "18px",
-                letterSpacing: "-0.017em",
-              }}
-            >
-              Scarlet Lifeline
-            </Typography>
-
+  return (
+    <AppBar
+      position="sticky"
+      elevation={0}
+      sx={{
+        backgroundColor:
+          mode === "dark" ? alpha("#1C1C1E", 0.8) : alpha("#FFFFFF", 0.8),
+        backdropFilter: "blur(20px)",
+        borderBottom: `0.5px solid ${
+          mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
+        }`,
+        color: mode === "dark" ? "#FFFFFF" : "#000000",
+      }}
+    >
+      <Container maxWidth="lg">
+        <Toolbar sx={{ py: 1 }}>
+          {isMobile && (
             <IconButton
-              onClick={toggleTheme}
+              edge="start"
+              onClick={handleDrawerToggle}
               sx={{
+                mr: 2,
                 color: "inherit",
-                mr: !isMobile ? 2 : 0,
               }}
             >
-              {mode === "dark" ? <Brightness7 /> : <Brightness4 />}
+              <MenuIcon />
             </IconButton>
+          )}
 
-            {!isMobile && (
-              <Box sx={{ display: "flex", gap: 1 }}>
-                {menuItems.map((item) => (
-                  <Button
-                    key={item.text}
-                    component={item.path ? RouterLink : "button"}
-                    to={item.path}
-                    onClick={item.onClick}
-                    endIcon={item.icon}
-                    sx={{
-                      color: "inherit",
-                      fontSize: "15px",
-                      px: 2,
-                      py: 1,
-                      borderRadius: 2,
-                      transition: "all 0.2s",
-                      "&:hover": {
-                        backgroundColor:
-                          mode === "dark"
-                            ? "rgba(255, 255, 255, 0.1)"
-                            : "rgba(0, 0, 0, 0.05)",
-                      },
-                    }}
-                  >
-                    {item.text}
-                  </Button>
-                ))}
-              </Box>
-            )}
-          </Toolbar>
-        </Container>
-      </AppBar>
+          <Typography
+            variant="h6"
+            component={RouterLink}
+            to="/"
+            onClick={() => handleNavigation("/", true)}
+            sx={{
+              flexGrow: 1,
+              textDecoration: "none",
+              color: "inherit",
+              fontWeight: 600,
+              fontSize: "18px",
+              letterSpacing: "-0.017em",
+            }}
+          >
+            Scarlet Lifeline
+          </Typography>
+
+          <IconButton
+            onClick={toggleTheme}
+            sx={{
+              color: "inherit",
+              mr: !isMobile ? 2 : 0,
+            }}
+          >
+            {mode === "dark" ? <Brightness7 /> : <Brightness4 />}
+          </IconButton>
+
+          {!isMobile && (
+            <Box sx={{ display: "flex", gap: 1 }}>
+              {menuItems.map((item) => (
+                <Button
+                  key={item.text}
+                  onClick={
+                    item.onClick ||
+                    (() => handleNavigation(item.path, item.requiresLogout))
+                  }
+                  endIcon={item.icon}
+                  sx={{
+                    color: "inherit",
+                    fontSize: "15px",
+                    px: 2,
+                    py: 1,
+                    borderRadius: 2,
+                    transition: "all 0.2s",
+                    "&:hover": {
+                      backgroundColor:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.1)"
+                          : "rgba(0, 0, 0, 0.05)",
+                    },
+                  }}
+                >
+                  {item.text}
+                </Button>
+              ))}
+            </Box>
+          )}
+        </Toolbar>
+      </Container>
 
       <Drawer
         variant="temporary"
@@ -273,7 +282,7 @@ const Navbar = () => {
       >
         {drawer}
       </Drawer>
-    </>
+    </AppBar>
   );
 };
 

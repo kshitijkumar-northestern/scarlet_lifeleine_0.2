@@ -1,6 +1,12 @@
 // src/contexts/AuthContext.js
-import React, { createContext, useState, useContext, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useCallback,
+} from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import api from "../services/api";
 
 const AuthContext = createContext(null);
@@ -8,11 +14,11 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Initialize auth state from localStorage
   useEffect(() => {
-    const initAuth = () => {
+    const initAuth = async () => {
       try {
         const token = localStorage.getItem("token");
         const storedUser = localStorage.getItem("userData");
@@ -24,7 +30,7 @@ export const AuthProvider = ({ children }) => {
         }
       } catch (error) {
         console.error("Error initializing auth:", error);
-        localStorage.clear();
+        handleLogout();
       } finally {
         setLoading(false);
       }
@@ -33,53 +39,108 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
+  const handleLogout = () => {
+    localStorage.clear();
+    delete api.defaults.headers.common["Authorization"];
+    setUser(null);
+    setError(null);
+  };
+
+  const performNavigation = useCallback(
+    (path) => {
+      navigate(path);
+    },
+    [navigate]
+  );
+
   const login = async (credentials, type) => {
     try {
-      const endpoint = type === "admin" ? "/admins/login" : "/donors/login";
+      setError(null);
+      setLoading(true);
+
+      // Using username and password directly as received
+      const endpoint = `/${type}s/login`;
+      console.log("Login attempt to endpoint:", endpoint);
+
       const response = await api.post(endpoint, credentials);
+      console.log("Login response:", response.data);
 
       const { token, ...userData } = response.data;
 
-      // Store token and set default header
-      localStorage.setItem("token", token);
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-      // Store user data
       const userToStore = {
         ...userData,
+        role: type,
         userType: type,
       };
-      localStorage.setItem("userData", JSON.stringify(userToStore));
 
-      // Update state
+      localStorage.setItem("token", token);
+      localStorage.setItem("userData", JSON.stringify(userToStore));
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       setUser(userToStore);
 
-      // Navigate based on user type
-      navigate(type === "admin" ? "/admin/dashboard" : "/donor/dashboard");
+      performNavigation(`/${type}/dashboard`);
       return response.data;
     } catch (error) {
       console.error("Login error:", error);
-      throw error;
+      const errorMessage =
+        error.response?.data?.message ||
+        "Login failed. Please check your credentials.";
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userData");
-    delete api.defaults.headers.common["Authorization"];
-    setUser(null);
-    navigate("/");
+  const register = async (userData) => {
+    try {
+      setError(null);
+      setLoading(true);
+      const response = await api.post("/donors/register", userData);
+      const { token, ...userInfo } = response.data;
+
+      const userToStore = {
+        ...userInfo,
+        role: "donor",
+        userType: "donor",
+      };
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("userData", JSON.stringify(userToStore));
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      setUser(userToStore);
+
+      performNavigation("/donor/dashboard");
+      return response.data;
+    } catch (error) {
+      console.error("Registration error:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        "Registration failed. Please try again.";
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (loading) {
-    return <div>Loading...</div>; // Or your loading component
-  }
+  const logout = useCallback(() => {
+    handleLogout();
+    performNavigation("/");
+  }, [performNavigation]);
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value = {
+    user,
+    login,
+    logout,
+    register,
+    loading,
+    error,
+    role: user?.role,
+    isAuthenticated: !!user,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
@@ -89,3 +150,5 @@ export const useAuth = () => {
   }
   return context;
 };
+
+export default AuthContext;
