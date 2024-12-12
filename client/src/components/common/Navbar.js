@@ -75,7 +75,7 @@ const Navbar = () => {
         },
         {
           text: "Logout",
-          icon: <Logout />,
+          // icon: <Logout />,
           onClick: handleLogout,
         },
       ]
