@@ -28,6 +28,8 @@ import {
 import GlobeComponent from "./GlobeComponent";
 import { cn } from "../../lib/utils";
 
+import abstract from "../../assets/images/abstract.jpeg";
+
 // Card Components
 const AppleCard = ({ icon, title, description, delay = 0 }) => (
   <motion.div
@@ -596,7 +598,7 @@ const HomePage = () => {
               >
                 <Box
                   component="img"
-                  src="/api/placeholder/600/400"
+                  src={abstract}
                   alt="Modern donation facility"
                   sx={{
                     width: "100%",

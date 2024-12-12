@@ -1,44 +1,19 @@
 // src/components/common/AboutPage.js
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Box, Container, Typography, Grid, Button } from "@mui/material";
 import { Card, CardContent } from "@mui/material";
 
 import { motion } from "framer-motion";
-import {
-  Security,
-  MedicalServices,
-  People,
-  Timeline,
-} from "@mui/icons-material";
+import { Security, People, Timeline } from "@mui/icons-material";
 
 const AboutPage = () => {
+  const navigate = useNavigate();
   const impactStats = [
     { number: "10K+", label: "Successful Donations" },
     { number: "50+", label: "Hospital Partners" },
     { number: "24/7", label: "Emergency Response" },
     { number: "100%", label: "Nationwide Coverage" },
-  ];
-
-  const values = [
-    {
-      icon: <Security sx={{ fontSize: 40, color: "primary.main" }} />,
-      title: "Safety First",
-      description:
-        "We maintain the highest standards of safety and quality in all our processes.",
-    },
-
-    {
-      icon: <People sx={{ fontSize: 40, color: "primary.main" }} />,
-      title: "Community Focus",
-      description:
-        "Building strong ties within communities to ensure sustainable blood supply.",
-    },
-    {
-      icon: <Timeline sx={{ fontSize: 40, color: "primary.main" }} />,
-      title: "Innovation",
-      description:
-        "Leveraging technology to make blood donation more accessible and efficient.",
-    },
   ];
 
   return (
@@ -178,7 +153,7 @@ const AboutPage = () => {
                 icon: <People sx={{ fontSize: 40, color: "primary.main" }} />,
                 title: "Community Focus",
                 description:
-                  "Building strong relationships within communities to ensure sustainable blood supply.",
+                  "Building strong relationships within communities.",
               },
               {
                 icon: <Timeline sx={{ fontSize: 40, color: "primary.main" }} />,
@@ -320,6 +295,7 @@ const AboutPage = () => {
           <Button
             variant="contained"
             size="large"
+            onClick={() => navigate("/donor/register")}
             sx={{
               py: 2,
               px: 6,
